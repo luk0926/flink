@@ -11,7 +11,7 @@ import org.apache.flink.util.Collector;
 /**
  * Created by dell on 2019/9/15.
  */
-public class BatchWordCount {
+public class JavaBatchWordCount {
     public static void main(String[] args)  throws Exception {
         String input = "C:\\Users\\dell\\Desktop\\data.txt";
         String ouput = "F:\\result";

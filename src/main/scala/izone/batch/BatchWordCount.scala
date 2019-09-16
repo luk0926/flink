@@ -9,8 +9,8 @@ object BatchWordCount {
   def main(args: Array[String]): Unit = {
     val env: ExecutionEnvironment = ExecutionEnvironment.getExecutionEnvironment
 
-    val input: String = "C:\\Users\\dell\\Desktop\\data.txt"
-    val output: String = "F:\\result.txt"
+    val input: String = "./data.txt"
+    val output: String = "./result.txt"
 
     val text: DataSet[String] = env.readTextFile(input)
 
