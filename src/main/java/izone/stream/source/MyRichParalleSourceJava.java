@@ -10,7 +10,7 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
  * @CreateTime: 2019-09-20 11:16
  */
 
-public class MyRichParalleSource extends RichParallelSourceFunction<Long> {
+public class MyRichParalleSourceJava extends RichParallelSourceFunction<Long> {
     private Long count = 1l;
     private Boolean isRunning = true;
 

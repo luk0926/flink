@@ -13,10 +13,10 @@ import org.apache.flink.streaming.api.windowing.time.Time;
  * @CreateTime: 2019-09-20 11:20
  */
 
-public class StreamingDempWirhRichParalleSource {
+public class StreamingDemoWithRichParalleSource {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStreamSource<Long> text = env.addSource(new MyRichParalleSource()).setParallelism(1);
+        DataStreamSource<Long> text = env.addSource(new MyRichParalleSourceJava()).setParallelism(1);
 
         SingleOutputStreamOperator<Long> map = text.map(new MapFunction<Long, Long>() {
             @Override
@@ -31,6 +31,6 @@ public class StreamingDempWirhRichParalleSource {
 
         sum.print().setParallelism(1);
 
-        env.execute("StreamingDempWirhRichParalleSource");
+        env.execute("StreamingDemoWithRichParalleSource");
     }
 }
