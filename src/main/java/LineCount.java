@@ -16,7 +16,7 @@ import java.util.Map;
 public class LineCount {
     public static void main(String[] args) {
         //输入路径
-        String dir = "D:\\github\\flink\\src\\main";
+        String dir = "D:\\github\\flink\\src";
         File file = new File(dir);
 
         HashMap<String, Integer> hashMap = new HashMap<>();//用来存放统计出来的行数
