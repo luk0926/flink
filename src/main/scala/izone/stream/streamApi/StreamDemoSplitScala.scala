@@ -35,7 +35,8 @@ object StreamDemoSplitScala {
       }
     })
 
-    val value: DataStream[Long] = split.select("odd","even")
+    val value: DataStream[Long] = split.select("even")
+    //val value: DataStream[Long] = split.select("odd","even")
 
     value.print().setParallelism(1)
 
