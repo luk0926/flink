@@ -41,7 +41,7 @@ public class BatchDemoCounter {
             }
         });
 
-        res.writeAsText("C:\\Users\\JIGUANG\\Desktop\\res");
+        res.writeAsText("C:\\Users\\JIGUANG\\Desktop\\res.txt");
 
         JobExecutionResult batchDemoCounter = env.execute("BatchDemoCounter");
         //获取累加器
