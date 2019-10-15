@@ -24,7 +24,7 @@ public class WindowWordCountWithCheckPoint {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // 每隔1000 ms进行启动一个检查点【设置checkpoint的周期】
+         // 每隔1000 ms进行启动一个检查点【设置checkpoint的周期】
         env.enableCheckpointing(1000);
         // 设置模式为exactly-once （这是默认值）
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
