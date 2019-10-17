@@ -5,7 +5,9 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.apache.flink.streaming.util.serialization.KeyedSerializationSchemaWrapper;
+
 
 import java.util.Properties;
 
@@ -13,12 +15,11 @@ import java.util.Properties;
  * @BelongsProject: flink
  * @BelongsPackage: izone.stream.kafka
  * @Author: luk@jiguang.cn
- * @CreateTime: 2019-10-10 15:05
+ * @CreateTime: 2019-10-17 18:01
  */
 
-public class StreamKafkaSource {
+public class StreamKafkaSink {
     public static void main(String[] args) throws Exception {
-        //获取运行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // 每隔1000 ms进行启动一个检查点【设置checkpoint的周期】
@@ -44,20 +45,26 @@ public class StreamKafkaSource {
         //设置statebackend
         //env.setStateBackend(new RocksDBStateBackend("hdfs://hadoop100:9000/flink/checkpoints",true));
 
-        String topic = "test";
+        DataStreamSource<String> text = env.socketTextStream("cts04", 9000, "\n");
+
+        String brokerList = "cts04:9092";
+        String topic = "t1";
+
         Properties prop = new Properties();
-        prop.setProperty("bootstrap.servers", "127.0.0.1:9092");
-        //prop.setProperty("group.id", "con1");
+        prop.setProperty("bootstreap.servers", brokerList);
 
-        FlinkKafkaConsumer011<String> myConsumer = new FlinkKafkaConsumer011<>(topic, new SimpleStringSchema(), prop);
+        //第一种解决方案，设置FlinkKafkaProducer011里面的事务超时时间
+        //设置事务超时时间
+        //prop.setProperty("transaction.timeout.ms",60000*15+"");
 
-        //myConsumer.setStartFromGroupOffsets(); //默认消费策略
-        myConsumer.setStartFromEarliest();
+        //第二种解决方案，设置kafka的最大事务超时时间
 
+        //FlinkKafkaProducer011<String> myProducer = new FlinkKafkaProducer011<>(brokerList, topic, new SimpleStringSchema());
 
-        DataStreamSource<String> text = env.addSource(myConsumer);
-        text.print().setParallelism(1);
+        //使用仅一次语义的kafkaProducer
+        FlinkKafkaProducer011<String> myProducer = new FlinkKafkaProducer011<>(topic, new KeyedSerializationSchemaWrapper<String>(new SimpleStringSchema()), prop, FlinkKafkaProducer011.Semantic.EXACTLY_ONCE);
+        text.addSink(myProducer);
 
-        env.execute("StreamKafkaSource");
+        env.execute(StreamKafkaSink.class.getSimpleName());
     }
 }
