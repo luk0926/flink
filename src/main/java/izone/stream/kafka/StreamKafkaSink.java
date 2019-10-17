@@ -48,20 +48,20 @@ public class StreamKafkaSink {
         DataStreamSource<String> text = env.socketTextStream("cts04", 9000, "\n");
 
         String brokerList = "cts04:9092";
-        String topic = "t1";
+        String topic = "hellotopic";
 
         Properties prop = new Properties();
-        prop.setProperty("bootstreap.servers", brokerList);
-
-        //第一种解决方案，设置FlinkKafkaProducer011里面的事务超时时间
-        //设置事务超时时间
-        //prop.setProperty("transaction.timeout.ms",60000*15+"");
-
-        //第二种解决方案，设置kafka的最大事务超时时间
+        prop.setProperty("bootstrap.servers", brokerList);
 
         //FlinkKafkaProducer011<String> myProducer = new FlinkKafkaProducer011<>(brokerList, topic, new SimpleStringSchema());
 
         //使用仅一次语义的kafkaProducer
+
+        //第一种解决方案，设置FlinkKafkaProducer011里面的事务超时时间
+        //设置事务超时时间
+        prop.setProperty("transaction.timeout.ms",60000*15+"");
+        //第二种解决方案，设置kafka的最大事务超时时间
+
         FlinkKafkaProducer011<String> myProducer = new FlinkKafkaProducer011<>(topic, new KeyedSerializationSchemaWrapper<String>(new SimpleStringSchema()), prop, FlinkKafkaProducer011.Semantic.EXACTLY_ONCE);
         text.addSink(myProducer);
 

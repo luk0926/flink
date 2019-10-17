@@ -44,9 +44,9 @@ public class StreamKafkaSource {
         //设置statebackend
         //env.setStateBackend(new RocksDBStateBackend("hdfs://hadoop100:9000/flink/checkpoints",true));
 
-        String topic = "test";
+        String topic = "hellotopic";
         Properties prop = new Properties();
-        prop.setProperty("bootstrap.servers", "127.0.0.1:9092");
+        prop.setProperty("bootstrap.servers", "cts04:9092");
         //prop.setProperty("group.id", "con1");
 
         FlinkKafkaConsumer011<String> myConsumer = new FlinkKafkaConsumer011<>(topic, new SimpleStringSchema(), prop);
