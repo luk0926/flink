@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/etl/etl.iml" filepath="$PROJECT_DIR$/etl/etl.iml" />
       <module fileurl="file://$PROJECT_DIR$/flink.iml" filepath="$PROJECT_DIR$/flink.iml" />
     </modules>
   </component>
