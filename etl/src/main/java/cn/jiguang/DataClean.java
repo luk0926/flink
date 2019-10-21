@@ -1,64 +1,30 @@
 package cn.jiguang;
 
+import cn.jiguang.sink.KafkaSink;
+import cn.jiguang.source.KafkaSource;
+import cn.jiguang.source.MyRedisSource;
+import cn.jiguang.util.GetEnv;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
-import org.apache.flink.streaming.util.serialization.KeyedSerializationSchemaWrapper;
 import org.apache.flink.util.Collector;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Created by dell on 2019/10/20.
  */
 public class DataClean {
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        //设置并行度
-        env.setParallelism(5);
-
-        // 每隔一分钟进行启动一个检查点【设置checkpoint的周期】
-        env.enableCheckpointing(60000);
-        // 设置模式为exactly-once （这是默认值）
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        // 确保检查点之间有至少30 s的间隔【checkpoint最小间隔】
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(30000);
-        // 检查点必须在10 s钟内完成，或者被丢弃【checkpoint的超时时间】
-        env.getCheckpointConfig().setCheckpointTimeout(10000);
-        // 同一时间只允许进行一个检查点
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        // 表示一旦Flink处理程序被cancel后，会保留Checkpoint数据，以便根据实际需要恢复到指定的Checkpoint
-        //ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION:表示一旦Flink处理程序被cancel后，会保留Checkpoint数据，以便根据实际需要恢复到指定的Checkpoint
-        //ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION: 表示一旦Flink处理程序被cancel后，会删除Checkpoint数据，只有job执行失败的时候才会保存checkpoint
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-        //设置statebackend
-        env.setStateBackend(new RocksDBStateBackend("hdfs://cts04:9000/flink/checkpoints",true));
-
-
-
-        //指定kafka source
-        String topic = "allData";
-        Properties prop = new Properties();
-
-        prop.setProperty("bootstrap.servers", "cts04:9092");
-        prop.setProperty("group.id", "con1");
-        FlinkKafkaConsumer011<String> myConsumer = new FlinkKafkaConsumer011<>(topic, new SimpleStringSchema(), prop);
+        StreamExecutionEnvironment env = GetEnv.getStreamExecutionEnvironment();
 
         //获取kafka中的数据
         //{"dt":"2019-10-20 17:43:00","countryCode":"US","data":[{"type":"s1","score":"0.3","level":"A"},{"type":"s2","score":"0.1","level":"B"}]}
-        DataStreamSource<String> kafkaData = env.addSource(myConsumer);
+        DataStreamSource<String> kafkaData = env.addSource(KafkaSource.getKafkaSource());
 
         DataStream<HashMap<String, String>> redisData = env.addSource(new MyRedisSource()).broadcast();  //broadcast可以把数据发送到后面所有并行实例中
 
@@ -83,8 +49,6 @@ public class DataClean {
 
                     out.collect(jsonObject1.toJSONString());
                 }
-
-
             }
 
             //处理redis中的数据
@@ -94,17 +58,8 @@ public class DataClean {
             }
         });
 
-
         //指定kafka sink
-        String outTopic = "allDataClean";
-        Properties outProp = new Properties();
-        outProp.setProperty("bootstrap.servers", "cts04:9092");
-        //设置事务超时时间
-        outProp.setProperty("transaction.timeout.ms", 60000*15+"");
-
-        FlinkKafkaProducer011<String> myProducer = new FlinkKafkaProducer011<>(outTopic, new KeyedSerializationSchemaWrapper<String>(new SimpleStringSchema()), outProp,FlinkKafkaProducer011.Semantic.EXACTLY_ONCE);
-
-        resData.addSink(myProducer);
+        resData.addSink(KafkaSink.getKafkaSink());
 
         env.execute(DataClean.class.getSimpleName());
     }

@@ -1,4 +1,4 @@
-package cn.jiguang;
+package cn.jiguang.source;
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
@@ -48,15 +48,15 @@ public class MyRedisSource implements SourceFunction<HashMap<String, String>> {
                     for (String split : splits) {
                         keyValueMap.put(split, key);
                     }
-
-                    if (keyValueMap.size() > 0) {
-                        sourceContext.collect(keyValueMap);
-                    } else {
-                        logger.warn("从redis中获取的数据为空！！！");
-                    }
-
-                    Thread.sleep(SLEEP_MILLION);
                 }
+
+                if (keyValueMap.size() > 0) {
+                    sourceContext.collect(keyValueMap);
+                } else {
+                    logger.warn("从redis中获取的数据为空！！！");
+                }
+
+                Thread.sleep(SLEEP_MILLION);
 
             } catch (JedisConnectionException e) {
                 logger.error("redis连接异常,重新获取连接", e.getCause());
