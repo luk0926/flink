@@ -123,6 +123,8 @@ public class DataReport {
 
         //设置批量写数据的缓冲区大小：每100条数据写一次
         esSinkBuilder.setBulkFlushMaxActions(100);
+        //刷新前缓冲区的最大数据大小（以MB为单位）
+        esSinkBuilder.setBulkFlushMaxSizeMb(500);
 
         resultData.addSink(esSinkBuilder.build());
 
