@@ -169,7 +169,7 @@
                     <archive>
                         <manifest>
                             <!-- 可以设置jar包的入口类(可选) -->
-                            <!--<mainClass>xuwei.tech.streaming.SocketWindowWordCountJava</mainClass>-->
+                            <!--<mainClass>SocketWindowWordCountJava</mainClass>-->
                         </manifest>
                     </archive>
                 </configuration>
