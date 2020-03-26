@@ -11,9 +11,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="etl" target="1.5" />
-      <module name="flink" target="1.5" />
-      <module name="report" target="1.5" />
+      <module name="etl" target="1.8" />
+      <module name="flink" target="1.8" />
+      <module name="report" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
